@@ -24,6 +24,7 @@ This document is the **Single Source of Truth (SSOT)** for the agent ecosystem, 
 | **communications-lead** | [`agents/communications-lead.md`](agents/communications-lead.md) | Medium | Client-facing communications and strategic narrative producer |
 | **data-analyst** | [`agents/data-analyst.md`](agents/data-analyst.md) | Medium | Statistical analysis, data modeling, and business insights specialist |
 | **delivery-manager** | [`agents/delivery-manager.md`](agents/delivery-manager.md) | Low | Project delivery and operations coordination specialist |
+| **i18n-specialist** | [`agents/i18n-specialist.md`](agents/i18n-specialist.md) | Medium | Locale configuration, locale-specific formatting, and text layout guidance specialist |
 | **industry-expert** | [`agents/industry-expert.md`](agents/industry-expert.md) | High | Industry-specific insights and competitive dynamics specialist |
 | **sme** | [`agents/sme.md`](agents/sme.md) | Medium | Functional expertise and solution design specialist |
 | **solutions-architect** | [`agents/solutions-architect.md`](agents/solutions-architect.md) | Medium | Technical solution design and implementation planning specialist |
@@ -53,7 +54,7 @@ See [`agents/pm.md`](agents/pm.md) for the PM Agent full definition.
 |-------|-------|
 | **File** | [`agents/communications-lead.md`](agents/communications-lead.md) |
 | **Tier** | medium |
-| **Phases** | 3 |
+| **Phases** | 0, 3 |
 | **Role** | Client-facing communications and strategic narrative producer |
 
 ### data-analyst
@@ -62,7 +63,7 @@ See [`agents/pm.md`](agents/pm.md) for the PM Agent full definition.
 |-------|-------|
 | **File** | [`agents/data-analyst.md`](agents/data-analyst.md) |
 | **Tier** | medium |
-| **Phases** | 1, 3 |
+| **Phases** | 0, 1, 3 |
 | **Role** | Statistical analysis, data modeling, and business insights specialist |
 
 ### delivery-manager
@@ -74,13 +75,22 @@ See [`agents/pm.md`](agents/pm.md) for the PM Agent full definition.
 | **Phases** | 4 |
 | **Role** | Project delivery and operations coordination specialist |
 
+### i18n-specialist
+
+| Field | Value |
+|-------|-------|
+| **File** | [`agents/i18n-specialist.md`](agents/i18n-specialist.md) |
+| **Tier** | medium |
+| **Phases** | 3 |
+| **Role** | Locale configuration, locale-specific formatting, and text layout guidance specialist |
+
 ### industry-expert
 
 | Field | Value |
 |-------|-------|
 | **File** | [`agents/industry-expert.md`](agents/industry-expert.md) |
 | **Tier** | high |
-| **Phases** | 1, 2 |
+| **Phases** | 0, 1, 2 |
 | **Role** | Industry-specific insights and competitive dynamics specialist |
 
 ### sme
@@ -98,7 +108,7 @@ See [`agents/pm.md`](agents/pm.md) for the PM Agent full definition.
 |-------|-------|
 | **File** | [`agents/solutions-architect.md`](agents/solutions-architect.md) |
 | **Tier** | medium |
-| **Phases** | 3 |
+| **Phases** | 0, 3 |
 | **Role** | Technical solution design and implementation planning specialist |
 
 ### strategy-analyst
@@ -107,7 +117,7 @@ See [`agents/pm.md`](agents/pm.md) for the PM Agent full definition.
 |-------|-------|
 | **File** | [`agents/strategy-analyst.md`](agents/strategy-analyst.md) |
 | **Tier** | medium |
-| **Phases** | 1 |
+| **Phases** | 0, 1 |
 | **Role** | Market analysis, competitive research, and strategic assessment lead |
 
 ### technology-specialist

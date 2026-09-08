@@ -83,13 +83,17 @@ Confirm the Writing Spec with the Engagement Leader before drafting.
 ### Step 4 - Validate & Render
 
 1. **Structural validation**: slide count and section order match the Writing Spec; every `requires-table` / `requires-chart` slide contains its element; no placeholder/guideline text survives.
-2. **Render to `.pptx`**:
+2. **Render to `.pptx` via `pptxgenjs`** (primary path - not `scripts/md-to-ooxml.ts`):
+   - `pptxgenjs` is a project dependency (`bun install` already pulls it in). Write a per-engagement Node script (e.g. `memory/<prospect>-build-pptx.js`) that builds one slide per Writing Spec section, following Claude's built-in `pptx` skill guidance if this session has it available (color palette, typography, layout patterns, and the `pptxgenjs` gotchas - hardcoded hex colors without `#`, `isTextBox: true` on every `addText`, fresh options objects per call, etc.). Run it with `node <script>.js`.
+   - **Why not `scripts/md-to-ooxml.ts --type pptx`**: confirmed via real-world testing (2026-09-08) that its Flat-OPC-packaged `.pptx` output is not reliably readable by real Microsoft PowerPoint even after several structural fixes (missing `docProps`, non-ZIP packaging, missing slide `xfrm`, invalid zip timestamps) - LibreOffice and a VS Code preview rendered it, but real PowerPoint kept failing to open it or offered "repair." A `pptxgenjs`-built deck opened cleanly in real PowerPoint on the first try with no repair prompt. `scripts/md-to-ooxml.ts` remains a valid *fallback* for a quick, unstyled draft when `pptxgenjs`/Node isn't available, but is no longer the recommended path for a client-facing proposal.
+   - **Validate before delivering**: if Claude's `pptx` skill's `scripts/office/validate.py` (or an equivalent OOXML validator) is available in this session, run it against the rendered file and fix every reported issue before treating the deck as final - don't skip this even though the deck "looks right" in a preview.
+   - For a non-deck engagement type whose sample is `.hwp`/`.hwpx`/`.pdf`/`.docx` instead, fall back to `sample-driven-report-writing`'s own render tools (`hwpx-generate.ts` / `md-to-report.ts`).
+3. **Optional - PDF export**: if the prospect needs a PDF instead of (or alongside) the `.pptx`:
    ```
-   bun scripts/md-to-ooxml.ts --input <draft.md> --output <output.pptx> --type pptx
+   bun scripts/co-consult/pptx-to-pdf.ts <output.pptx> --outdir <dir>
    ```
-   This workspace-root script maps each Markdown H1 to a slide (title placeholder) and the content below it to the body placeholder (bullets, bold lead-ins, plain-text tables) - it is the workspace's supported pptx path (see `templates/co-deck/docs/co-deck.context.md`). Its table/chart rendering is intentionally simple (plain-text lines, no native chart objects); if the firm's actual template requires richer visual design (embedded chart objects, custom layouts) than this produces, hand off the rendered `.pptx` to the Engagement Leader for manual polishing in PowerPoint rather than treating the script's output as final.
-   For a non-deck engagement type whose sample is `.hwp`/`.hwpx`/`.pdf`/`.docx` instead, fall back to `sample-driven-report-writing`'s own render tools (`hwpx-generate.ts` / `md-to-report.ts`).
-3. Max 2 revision cycles before PM escalation.
+   Requires LibreOffice installed locally. This forces the Impress conversion filter explicitly - LibreOffice's plain auto-detection can mis-identify a single-file OOXML variant as a Calc document otherwise. Confirmed working against a genuine ZIP-packaged `pptxgenjs` deck (2026-09-08).
+4. Max 2 revision cycles before PM escalation.
 
 > **Sign-off after this step is a manual procedure outside the harness.** This skill's output is the rendered `.pptx` (or fallback format) file - nothing more. Before it is sent to the prospect, the firm's actual decision-maker (partner/principal) must review and approve it offline; this skill and its owning procedure (`proposal-drafting`) do not model that approval as an enforceable gate.
 

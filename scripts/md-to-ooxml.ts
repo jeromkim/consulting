@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * @version 1.2.0
+ * @version 1.2.1
  * @description Compiles Markdown documentation into native Microsoft Office Open XML (.docx / .xlsx / .pptx) structures (WordML / SpreadsheetML / PresentationML).
  * @usage bun scripts/md-to-ooxml.ts [--input <path>] [--output <path>] [--type docx|xlsx|pptx] [--check] [--help]
  */
@@ -162,12 +162,16 @@ function compileToSpreadsheetML(mdText: string): string {
 /**
  * Generates a Microsoft PowerPoint PresentationML structure (.pptx package).
  *
- * Packaging follows the SAME single-file approach as the WordML/SpreadsheetML
- * writers above: the compiler returns one XML document written via a single
- * writeFileSync. The multi-part OOXML presentation package ([Content_Types].xml,
- * rels, presentation, slide master, slide layout, theme, slides) is embedded in
- * the standard Flat OPC single-file form (pkg:package/pkg:part/pkg:xmlData)
- * rather than a ZIP archive — no new packaging mechanism, no new dependencies.
+ * v1.2.1: returns the individual OOXML package parts (name/contentType/xml)
+ * rather than a Flat OPC single-file XML string. Confirmed via manual testing
+ * (2026-09-08) that a Flat OPC file saved with a .pptx extension is NOT
+ * reliably recognized as a real presentation by either Microsoft PowerPoint
+ * or LibreOffice — both misinterpret it (LibreOffice imports it as a Calc
+ * document regardless of the requested export filter) and produce garbage or
+ * refuse to open it. main() now packs these parts into a genuine ZIP-based
+ * OPC container via buildZipPackage(), which is what real .pptx readers
+ * actually expect. See partsToFlatOpcXml() below if a Flat OPC string is ever
+ * needed again (kept for reference; nothing currently consumes it).
  *
  * Markdown → slide mapping (deliberately simple):
  *   - Each `# ` H1 starts a new slide; the heading text becomes the title placeholder.
@@ -180,7 +184,13 @@ function compileToSpreadsheetML(mdText: string): string {
  *     are generated.
  *   - Non-H1 content before the first heading becomes an implicit untitled slide.
  */
-function compileToPresentationML(mdText: string): string {
+interface OoxmlPart {
+  name: string;
+  contentType: string;
+  xml: string;
+}
+
+function compileToPresentationML(mdText: string): OoxmlPart[] {
   // --- Markdown → slide model -------------------------------------------------
   const slides: { title: string; bodyXml: string[] }[] = [];
   let current: { title: string; bodyXml: string[] } | null = null;
@@ -257,12 +267,12 @@ function compileToPresentationML(mdText: string): string {
       <p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>
       <p:sp>
         <p:nvSpPr><p:cNvPr id="2" name="Title ${slideIndex}"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr>
-        <p:spPr/>
+        <p:spPr><a:xfrm><a:off x="457200" y="274638"/><a:ext cx="11223750" cy="1325563"/></a:xfrm></p:spPr>
         <p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/><a:t>${escapeXml(title)}</a:t></a:r></a:p></p:txBody>
       </p:sp>
       <p:sp>
         <p:nvSpPr><p:cNvPr id="3" name="Content Placeholder ${slideIndex}"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="body" idx="1"/></p:nvPr></p:nvSpPr>
-        <p:spPr/>
+        <p:spPr><a:xfrm><a:off x="457200" y="1600200"/><a:ext cx="11223750" cy="4800600"/></a:xfrm></p:spPr>
         <p:txBody><a:bodyPr/><a:lstStyle/>${body}</p:txBody>
       </p:sp>
     </p:spTree>
@@ -369,6 +379,8 @@ function compileToPresentationML(mdText: string): string {
   const contentTypesXml = `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
   <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
+  <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
   <Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/>
   <Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/>
   <Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/>
@@ -378,7 +390,29 @@ function compileToPresentationML(mdText: string): string {
 
   const rootRelsXml = `<Relationships ${RELS_NS}>
   <Relationship Id="rId1" Type="${REL_TYPE}/officeDocument" Target="ppt/presentation.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+  <Relationship Id="rId3" Type="${REL_TYPE}/extended-properties" Target="docProps/app.xml"/>
 </Relationships>`;
+
+  const nowIso = new Date().toISOString();
+  const coreXml = `<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <dc:title>${escapeXml(slides[0]?.title || "Presentation")}</dc:title>
+  <dc:creator>md-to-ooxml</dc:creator>
+  <cp:lastModifiedBy>md-to-ooxml</cp:lastModifiedBy>
+  <dcterms:created xsi:type="dcterms:W3CDTF">${nowIso}</dcterms:created>
+  <dcterms:modified xsi:type="dcterms:W3CDTF">${nowIso}</dcterms:modified>
+</cp:coreProperties>`;
+
+  const appXml = `<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
+  <Application>md-to-ooxml</Application>
+  <PresentationFormat>On-screen Show (16:9)</PresentationFormat>
+  <Slides>${slides.length}</Slides>
+  <Company></Company>
+  <LinksUpToDate>false</LinksUpToDate>
+  <SharedDoc>false</SharedDoc>
+  <HyperlinksChanged>false</HyperlinksChanged>
+  <AppVersion>16.0000</AppVersion>
+</Properties>`;
 
   const sldIdEntries = slides.map((_, i) => `<p:sldId id="${256 + i}" r:id="rId${i + 2}"/>`).join("\n      ");
   const presentationXml = `<p:presentation ${PPT_NS}>
@@ -408,6 +442,8 @@ ${slides.map((_, i) => `  <Relationship Id="rId${i + 2}" Type="${REL_TYPE}/slide
   const parts: { name: string; contentType: string; xml: string }[] = [
     { name: "/[Content_Types].xml", contentType: "application/xml", xml: contentTypesXml },
     { name: "/_rels/.rels", contentType: "application/vnd.openxmlformats-package.relationships+xml", xml: rootRelsXml },
+    { name: "/docProps/core.xml", contentType: "application/vnd.openxmlformats-package.core-properties+xml", xml: coreXml },
+    { name: "/docProps/app.xml", contentType: "application/vnd.openxmlformats-officedocument.extended-properties+xml", xml: appXml },
     { name: "/ppt/presentation.xml", contentType: "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml", xml: presentationXml },
     { name: "/ppt/_rels/presentation.xml.rels", contentType: "application/vnd.openxmlformats-package.relationships+xml", xml: presentationRelsXml },
     { name: "/ppt/slideMasters/slideMaster1.xml", contentType: "application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml", xml: slideMasterXml },
@@ -429,6 +465,11 @@ ${slides.map((_, i) => `  <Relationship Id="rId${i + 2}" Type="${REL_TYPE}/slide
     })),
   ];
 
+  return parts;
+}
+
+/** Flat OPC single-file XML rendering of a part list — kept for reference/debugging; not used by main() as of v1.2.1 (see compileToPresentationML doc comment). */
+function partsToFlatOpcXml(parts: OoxmlPart[]): string {
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <?mso-application progid="PowerPoint.Show"?>
 <pkg:package xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage">
@@ -444,14 +485,131 @@ ${part.xml}
 </pkg:package>`;
 }
 
+// ─── Minimal ZIP writer (STORED, no compression) ──────────────────────────────
+// Builds a real PKZIP archive so PresentationML/WordML/SpreadsheetML parts open
+// as genuine OOXML packages in real Office/LibreOffice readers, per ADR-0036
+// (TypeScript-only scripts — no new runtime dependency for this).
+
+function crc32(data: Uint8Array): number {
+  let crc = 0xffffffff;
+  for (let i = 0; i < data.length; i++) {
+    crc ^= data[i];
+    for (let j = 0; j < 8; j++) {
+      crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function concatBytes(chunks: Uint8Array[]): Uint8Array {
+  const total = chunks.reduce((sum, c) => sum + c.length, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const c of chunks) {
+    out.set(c, offset);
+    offset += c.length;
+  }
+  return out;
+}
+
+/** Builds a ZIP (OPC) package from a list of {path, data} entries — STORED (uncompressed) method for correctness and simplicity. */
+function buildZipPackage(files: { path: string; data: Uint8Array }[]): Uint8Array {
+  const encoder = new TextEncoder();
+  const localEntries: Uint8Array[] = [];
+  const centralEntries: Uint8Array[] = [];
+  let offset = 0;
+
+  // A zero DOS date/time (0,0) decodes to day=0, month=0 — not a valid
+  // calendar date under the DOS date-time spec, which strict OPC readers
+  // (real PowerPoint, confirmed via testing 2026-09-08) may reject the whole
+  // archive over, even though lenient readers (LibreOffice) tolerate it. Use
+  // a fixed, valid DOS timestamp instead (2026-01-01 00:00:00).
+  const DOS_DATE = ((2026 - 1980) << 9) | (1 << 5) | 1;
+  const DOS_TIME = 0;
+
+  for (const file of files) {
+    const nameBytes = encoder.encode(file.path);
+    const crc = crc32(file.data);
+    const size = file.data.length;
+
+    const lfh = new DataView(new ArrayBuffer(30));
+    lfh.setUint32(0, 0x04034b50, true);
+    lfh.setUint16(4, 20, true);
+    lfh.setUint16(6, 0, true);
+    lfh.setUint16(8, 0, true); // method: stored
+    lfh.setUint16(10, DOS_TIME, true);
+    lfh.setUint16(12, DOS_DATE, true);
+    lfh.setUint32(14, crc, true);
+    lfh.setUint32(18, size, true);
+    lfh.setUint32(22, size, true);
+    lfh.setUint16(26, nameBytes.length, true);
+    lfh.setUint16(28, 0, true);
+
+    const localEntry = concatBytes([new Uint8Array(lfh.buffer), nameBytes, file.data]);
+    localEntries.push(localEntry);
+
+    const cdh = new DataView(new ArrayBuffer(46));
+    cdh.setUint32(0, 0x02014b50, true);
+    cdh.setUint16(4, 20, true);
+    cdh.setUint16(6, 20, true);
+    cdh.setUint16(8, 0, true);
+    cdh.setUint16(10, 0, true); // method: stored
+    cdh.setUint16(12, DOS_TIME, true);
+    cdh.setUint16(14, DOS_DATE, true);
+    cdh.setUint32(16, crc, true);
+    cdh.setUint32(20, size, true);
+    cdh.setUint32(24, size, true);
+    cdh.setUint16(28, nameBytes.length, true);
+    cdh.setUint16(30, 0, true);
+    cdh.setUint16(32, 0, true);
+    cdh.setUint16(34, 0, true);
+    cdh.setUint16(36, 0, true);
+    cdh.setUint32(38, 0, true);
+    cdh.setUint32(42, offset, true);
+
+    centralEntries.push(concatBytes([new Uint8Array(cdh.buffer), nameBytes]));
+    offset += localEntry.length;
+  }
+
+  const centralDirStart = offset;
+  const centralDir = concatBytes(centralEntries);
+
+  const eocd = new DataView(new ArrayBuffer(22));
+  eocd.setUint32(0, 0x06054b50, true);
+  eocd.setUint16(4, 0, true);
+  eocd.setUint16(6, 0, true);
+  eocd.setUint16(8, files.length, true);
+  eocd.setUint16(10, files.length, true);
+  eocd.setUint32(12, centralDir.length, true);
+  eocd.setUint32(16, centralDirStart, true);
+  eocd.setUint16(20, 0, true);
+
+  return concatBytes([...localEntries, centralDir, new Uint8Array(eocd.buffer)]);
+}
+
+/** Converts OOXML parts (as produced by compileToPresentationML) into a real ZIP-based .pptx package. */
+function partsToZipPackage(parts: OoxmlPart[]): Uint8Array {
+  const encoder = new TextEncoder();
+  const files = parts.map((part) => ({
+    path: part.name.replace(/^\//, ""),
+    data: encoder.encode(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n${part.xml}`),
+  }));
+  return buildZipPackage(files);
+}
+
 if (isCheck) {
   console.log("✅ Parse completed successfully (dry-run).");
   process.exit(0);
 }
 
-const compiledOutput =
-  targetType === "xlsx" ? compileToSpreadsheetML(content) : targetType === "pptx" ? compileToPresentationML(content) : compileToWordML(content);
 const targetFile = outputPath ? resolve(process.cwd(), outputPath) : resolvedInput.replace(/\.md$/, `.${targetType}`);
 
-writeFileSync(targetFile, compiledOutput, "utf-8");
+if (targetType === "pptx") {
+  const parts = compileToPresentationML(content);
+  const zipBytes = partsToZipPackage(parts);
+  writeFileSync(targetFile, zipBytes);
+} else {
+  const compiledOutput = targetType === "xlsx" ? compileToSpreadsheetML(content) : compileToWordML(content);
+  writeFileSync(targetFile, compiledOutput, "utf-8");
+}
 console.log(`✅ Successfully compiled Office OOXML package (${targetType.toUpperCase()}): ${targetFile}`);
