@@ -1,0 +1,54 @@
+schema_version: "1.0"
+procedure_id: co-consult-solution-approach-design
+variant: co-consult
+version: "0.1.0"
+title: Solution Approach Design
+phase: 0
+status: draft
+owner_agent: solutions-architect
+purpose: >
+  Map confirmed prospect requirements to a candidate architecture and feature
+  set, a schedule and phased roadmap, and a script-computed cost estimate -
+  everything the proposal needs, without committing to a signed scope.
+inputs:
+  - client_requirements
+preconditions:
+  - "requirements-confirmation has completed and client_requirements is available."
+steps:
+  - id: 1
+    agent_key: solutions-architect
+    skill_key: solution-design
+    output_type: proposed_architecture
+    description: >
+      Shape an architecture and feature mapping that traces to every
+      requirement in client_requirements - indicative, not a committed scope.
+  - id: 2
+    agent_key: solutions-architect
+    skill_key: solution-design
+    output_type: delivery_roadmap
+    description: >
+      Produce a schedule and phased implementation roadmap with explicit
+      dependency mapping for the proposed architecture.
+  - id: 3
+    agent_key: data-analyst
+    skill_key: proposal-costing
+    output_type: proposal_cost_estimate
+    description: >
+      Compute labor cost (role x day-rate x duration) and solution/license/
+      infra cost by executing scripts/co-consult/proposal-cost-calculator.ts
+      against this engagement's cost input file - never hand-computed.
+outputs:
+  - type: proposed_architecture
+  - type: delivery_roadmap
+  - type: proposal_cost_estimate
+relations:
+  - type: follows
+    target: procedure.co-consult.requirements-confirmation
+  - type: enables
+    target: procedure.co-consult.proposal-drafting
+quality_gates:
+  - "Every requirement in client_requirements traces to at least one architecture element - no orphaned requirements."
+  - "All cost figures are produced by executing scripts/co-consult/proposal-cost-calculator.ts - no manually computed or AI-estimated numbers, per Computational Integrity Standards."
+evidence: []
+failure_modes:
+  - "Role rate card or vendor/license pricing is unavailable for this engagement - escalate to PM/data-analyst to source a cost input file before finalizing the estimate; do not proceed with placeholder numbers."

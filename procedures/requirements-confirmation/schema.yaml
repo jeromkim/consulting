@@ -1,0 +1,43 @@
+schema_version: "1.0"
+procedure_id: co-consult-requirements-confirmation
+variant: co-consult
+version: "0.1.0"
+title: Requirements Confirmation
+phase: 0
+status: draft
+owner_agent: strategy-analyst
+purpose: >
+  Confirm and structure a prospective client's requirements from an RFP,
+  briefing document, or direct request - before any engagement is signed and
+  before any client-data access exists. Feeds solution-approach-design.
+inputs: []
+preconditions:
+  - "No signed engagement or delivery authority exists yet, but the prospect has shared requirements via RFP, briefing document, or direct request."
+  - "A named prospective client and a business-development trigger has been confirmed by the Engagement Leader."
+steps:
+  - id: 1
+    agent_key: strategy-analyst
+    skill_key: requirements-elicitation
+    output_type: client_requirements
+    description: >
+      Parse the RFP/briefing/meeting notes into a structured, categorized
+      (functional / non-functional / constraint) requirements list, each item
+      traceable to its source document.
+  - id: 2
+    agent_key: industry-expert
+    skill_key: company-intelligence
+    output_type: client_requirements
+    description: >
+      Gather supplementary public-context research on the prospect and fold
+      it into the same requirements artifact as background context.
+outputs:
+  - type: client_requirements
+relations:
+  - type: enables
+    target: procedure.co-consult.solution-approach-design
+quality_gates:
+  - "Every requirement traces to the source RFP/briefing document - no invented requirements."
+  - "Requirements are categorized and confirmed by the Engagement Leader before solution design begins."
+evidence: []
+failure_modes:
+  - "RFP/briefing is ambiguous or incomplete - escalate to PM to request clarification from the prospect rather than assuming requirements."

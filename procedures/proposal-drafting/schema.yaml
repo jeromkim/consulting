@@ -1,0 +1,71 @@
+schema_version: "1.0"
+procedure_id: co-consult-proposal-drafting
+variant: co-consult
+version: "0.1.0"
+title: Proposal Drafting to Firm Template
+phase: 0
+status: draft
+owner_agent: communications-lead
+purpose: >
+  Select the firm's proposal sample matching this engagement type, draft a
+  client proposal for a prospective (not yet engaged) client that matches
+  that sample's structure exactly, and render to the final file format.
+  Sign-off before delivery is a manual step outside this procedure.
+inputs:
+  - client_requirements
+  - proposed_architecture
+  - delivery_roadmap
+  - proposal_cost_estimate
+preconditions:
+  - "solution-approach-design has completed."
+  - "The firm's proposal template library (one or more reference proposal samples in .pptx - the firm's standard proposal deck format - or .hwp/.hwpx/.pdf/.docx for non-deck engagement types, by engagement type) is available on disk - the applicable sample is selected in step 1."
+steps:
+  - id: 1
+    agent_key: communications-lead
+    skill_key: proposal-writing
+    output_type: proposal_draft
+    description: >
+      Select the reference proposal sample matching this engagement type from
+      the firm's template library and confirm the selection with the
+      Engagement Leader. If the library has only one sample, this step simply
+      confirms it.
+  - id: 2
+    agent_key: communications-lead
+    skill_key: proposal-writing
+    output_type: proposal_draft
+    description: >
+      Extract the Writing Spec (chapter structure, mandatory tables/charts
+      per section, page budget) from the selected sample and confirm it with
+      the Engagement Leader before drafting.
+  - id: 3
+    agent_key: communications-lead
+    skill_key: proposal-writing
+    output_type: proposal_draft
+    description: >
+      Draft every chapter against the Writing Spec, incorporating
+      client_requirements, proposed_architecture, delivery_roadmap, and
+      proposal_cost_estimate plus a win-themes/differentiation section,
+      replacing all placeholders.
+  - id: 4
+    agent_key: communications-lead
+    skill_key: proposal-writing
+    output_type: proposal_draft
+    description: >
+      Validate structural and visual-element compliance against the Writing
+      Spec, then render to the sample's final file format - for the firm's
+      standard .pptx proposal deck, via scripts/md-to-ooxml.ts --type pptx.
+outputs:
+  - type: proposal_draft
+relations:
+  - type: follows
+    target: procedure.co-consult.solution-approach-design
+  - type: composes_with
+    target: skill.sample-driven-report-writing
+quality_gates:
+  - "The selected sample matches this engagement type, confirmed by the Engagement Leader."
+  - "The draft structurally matches the selected reference proposal sample exactly (chapter count, section order, mandatory tables/charts)."
+  - "All four upstream inputs are reflected in their corresponding document sections - no placeholder content survives."
+evidence: []
+failure_modes:
+  - "No firm proposal sample matches this engagement type - escalate to PM to source one, or the Engagement Leader decides whether to adapt the closest available sample."
+  - "Structural validation fails after 2 revision cycles - escalate per sample-driven-report-writing's Phase 4 rule."

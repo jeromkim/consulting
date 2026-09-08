@@ -1,0 +1,291 @@
+# co-consult — co-consult Configuration
+
+> Extends docs/context.md. This file IS the customization layer for this project.
+> context.md is IMMUTABLE — all project-specific changes belong here.
+>
+> Read order for all AI tools:
+>   1. docs/context.md               — immutable project identity (architecture, standards)
+>   2. docs/co-consult.context.md    — THIS FILE — tech stack, agents, skills, workflow
+
+---
+
+## Tool Stack
+
+> Add your engagement's specific tools and platforms here.
+> Examples: research tools, communication platforms, productivity suites, data analysis tools.
+
+| Purpose | Tool |
+|---------|------|
+| *(e.g., Research)* | *(e.g., your preferred research tool)* |
+| *(e.g., Communication)* | *(e.g., your team's platform)* |
+
+---
+
+## Agents
+
+<!-- context-proximity: agent roles summarized here for AI context window efficiency; authoritative definitions in agents/*.md -->
+
+<!-- Add/remove rows as agents are introduced or retired via lifecycle management. -->
+<!-- Status: active | deprecated | experimental -->
+
+| Agent | File | Role | Status |
+|-------|------|------|--------|
+| **Engagement Leader** | `agents/pm.md` | Engagement orchestration, client interface, final decisions, QA | active |
+| **Change Management Partner** | `agents/change-management-partner.md` | Organizational transformation, culture strategy, stakeholder alignment | active |
+| **Strategy Analyst** | `agents/strategy-analyst.md` | Market analysis, competitive research, financial modeling | active |
+| **Industry Expert** | `agents/industry-expert.md` | Industry-specific insights, competitive dynamics, regulatory landscape | active |
+| **Subject Matter Expert** | `agents/sme.md` | Functional expertise (HR, Finance, Operations, Marketing) | active |
+| **Communications Lead** | `agents/communications-lead.md` | Client communications, presentations, strategic narratives | active |
+| **Solutions Architect** | `agents/solutions-architect.md` | Technical solution design, system architecture, implementation roadmaps | active |
+| **Workstream Lead** | `agents/workstream-lead.md` | Workstream management, team coordination, progress tracking | active |
+| **Delivery Manager** | `agents/delivery-manager.md` | Project delivery, operations coordination, resource allocation | active |
+| **Technology Specialist** | `agents/technology-specialist.md` | Collaboration platforms, workflow automation, digital transformation | active |
+| **Data Analyst** | `agents/data-analyst.md` | Statistical analysis, data modeling, visualization | active |
+
+> Lifecycle management: `bun scripts/agent-lifecycle-audit.ts`
+> After any agent change, update AGENTS.md and this table.
+
+---
+
+## Skills
+
+<!-- DYNAMIC_SKILLS_START -->
+**Platform Skills**
+
+| Skill | File | Trigger condition |
+|-------|------|-------------------|
+| **Research Analysis** | `.claude/skills/research-analysis/SKILL.md` | Analyzing topics, synthesizing research, evidence gathering |
+| **Documentation Writing** | `.claude/skills/documentation-writing/SKILL.md` | Creating guides, drafting communications, synthesizing complex information |
+| **Meeting Facilitation** | `skills/meeting-facilitation/SKILL.md` | Running structured multi-agent meetings |
+| **Agent Lifecycle Manager** | `skills/agent-lifecycle-manager/SKILL.md` | Managing agent lifecycle and validation |
+| **Skill Lifecycle Manager** | `skills/skill-lifecycle-manager/SKILL.md` | Managing skill lifecycle and validation |
+| **Project Review** | `.claude/skills/project-review/SKILL.md` | Comprehensive parallel review of the project |
+| **Team Builder** | `skills/team-builder/SKILL.md` | Build new agent team: requirements interview, benchmarking, proposal generation, approval gate |
+| **Company Intelligence** | `skills/company-intelligence/SKILL.md` | Comprehensive company and corporate group intelligence gathering and analysis |
+
+**Phase 1 — Research & Analysis**
+
+| Skill | File | Owner |
+|-------|------|-------|
+| **Competitive Intelligence** | `skills/competitive-intelligence/SKILL.md` | strategy-analyst |
+| **Financial Modeling** | `skills/financial-modeling/SKILL.md` | strategy-analyst |
+| **Insight Synthesis** | `skills/insight-synthesis/SKILL.md` | strategy-analyst |
+| **k-dart** | `skills/k-dart/SKILL.md` | strategy-analyst |
+| **Stakeholder Alignment** | `skills/stakeholder-alignment/SKILL.md` | change-management-partner |
+| **Org Readiness Assessment** | `skills/org-readiness-assessment/SKILL.md` | change-management-partner |
+
+**Phase 3 — Content Creation**
+
+| Skill | File | Owner |
+|-------|------|-------|
+| **Change Impact Assessment** | `skills/change-impact-assessment/SKILL.md` | change-management-partner |
+| **Narrative Framework** | `skills/narrative-framework/SKILL.md` | communications-lead |
+| **Consulting Report Writing** | `skills/consulting-report-writing/SKILL.md` | communications-lead |
+| **Executive Presentation** | `skills/executive-presentation/SKILL.md` | communications-lead |
+| **Solution Design** | `skills/solution-design/SKILL.md` | solutions-architect |
+| **Technical Feasibility** | `skills/technical-feasibility/SKILL.md` | solutions-architect |
+
+**Phase 4 — Delivery**
+
+| Skill | File | Owner |
+|-------|------|-------|
+| **Project Delivery** | `skills/project-delivery/SKILL.md` | delivery-manager |
+| **Stakeholder Review Management** | `skills/stakeholder-review-management/SKILL.md` | delivery-manager |
+
+**Phase 0 — Pre-Sales Proposal Generation**
+
+| Skill | File | Owner |
+|-------|------|-------|
+| **Requirements Elicitation** | `skills/requirements-elicitation/SKILL.md` | strategy-analyst |
+| **Proposal Costing** | `skills/proposal-costing/SKILL.md` | data-analyst |
+| **Proposal Writing** | `skills/proposal-writing/SKILL.md` | communications-lead |
+<!-- DYNAMIC_SKILLS_END -->
+
+> Lifecycle management: `bun scripts/skill-lifecycle-audit.ts`
+
+---
+
+## Environment Setup
+
+<!-- VARIANT-INJECT: environment-setup [REQUIRED] -->
+- Copy `.env.sample` → `.env` and fill in all required values.
+- Required env keys (see `.env.sample`): *(fill in after project creation)*
+<!-- END VARIANT-INJECT -->
+
+---
+
+## Development Workflow
+
+```
+Client brief / task received
+  —
+/sync "feat: description"
+  —
+  1. audit.ts — abort on failure
+  2. memory/YYYY-MM-DD.md — session log (4-section format)
+  3. MEMORY.md index update
+  4. git add -A → commit
+  5. pr/<date>-<slug> branch created (if on main)
+  6. git push + gh pr create
+```
+
+### Agent Dispatch Order (co-consult standard)
+
+```
+Engagement Leader
+  ├── Strategy Analyst        (Phase 1 — research, async)
+  ├── Change Management Partner  (Phase 1-2 — org & culture analysis)
+  ├── [Industry Expert / SME]    (Phase 1 — specialist input, when needed)
+  ├── Communications Lead        (Phase 3 — client deliverables, parallel)
+  ├── Solutions Architect        (Phase 3 — technical design, parallel)
+  ├── Workstream Lead            (Phase 3-4 — coordination, when 3+ streams)
+  ├── Delivery Manager           (Phase 4 — stakeholder review & logistics)
+  ├── Technology Specialist      (Phase 4 — platform implementation)
+  └── Data Analyst               (Phase 1/3 — modeling & visualization, when needed)
+```
+
+### Workflow Phases
+
+| Phase | Name | What Happens | Primary Owner |
+|-------|------|--------------|---------------|
+| 0 | Engagement Initiation | Engagement Leader defines scope, assembles team, confirms client objectives | Engagement Leader |
+| 1 | Research & Data Gathering | Strategy Analyst conducts market/competitive research; Change Management Partner assesses org readiness | Strategy Analyst, Change Management Partner |
+| 1.5 | Cross-Validation | Validator agents cross-check Phase 1 deliverables for consistency before synthesis | PM (dispatches validators) |
+| 2 | Design Review & Approval | Proposed approach presented to client/user; **approval gate** — no execution without sign-off | Engagement Leader |
+| 3 | Content Creation | Communications Lead drafts client deliverables; Solutions Architect designs technical solutions (parallel) | Communications Lead, Solutions Architect |
+| 4 | Platform Delivery | Delivery Manager coordinates stakeholder reviews; Technology Specialist implements M365 workflows | Delivery Manager, Technology Specialist |
+| 5 | QA & Finalization | Engagement Leader runs audit scripts, validates all deliverables meet quality standards | Engagement Leader |
+| 6 | PR & Handoff | Engagement Leader runs `/sync`, creates PR, delivers final output to client | Engagement Leader |
+
+---
+
+## Team Configuration Scenarios
+
+See [`docs/team-configuration-guide.md`](team-configuration-guide.md) for full scenario details.
+
+| Scenario | Core Agents | Duration | Best For |
+|----------|------------|---------|----------|
+| **Quick Assessment** | Engagement Leader + Strategy Analyst + Communications Lead | 1–2 weeks | Rapid diagnostics, feasibility studies |
+| **Standard Engagement** | 5 core agents | 4–8 weeks | Strategy development, operational improvement |
+| **Complex Transformation** | Full team (11 agents) | 8–16 weeks | Digital transformation, large-scale restructuring |
+| **Specialized Expert** | 3–4 agents + expert | 2–4 weeks | Deep industry or functional focus |
+
+---
+
+<!-- VARIANT-INJECT: guidelines [REQUIRED] -->
+## Consulting Guidelines
+
+### Core Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **Evidence-Driven** | All recommendations grounded in data and validated research |
+| **Client-Centric** | Deliverables tailored to client's audience and decision context |
+| **Structured Communication** | Complex insights synthesized into clear, actionable outputs |
+| **Stakeholder Alignment** | Inclusive review processes and executive-level engagement |
+| **Change-Aware** | Organizational readiness and culture factored into every recommendation |
+
+### Rules
+
+1. Start every engagement with research — document sources before drafting recommendations.
+2. All client deliverables must pass the Phase 2 approval gate before execution.
+3. Archive source materials alongside final artifacts.
+4. Use consistent templates and formatting for all client-facing deliverables.
+5. All PR titles, bodies, and branch names must be in **English**.
+
+<!-- END VARIANT-INJECT -->
+
+---
+
+## Computational Integrity
+
+All numeric outputs in deliverables (aggregations, statistics, percentages, metrics) must be computed by executed code (bun/TypeScript scripts) — never by the AI performing arithmetic directly. High-precision or safety-critical domains (Class A: aerospace, precision control, regulated finance) require validated external tools. See `docs/context.md` § Computational Integrity Standards for the full policy; label AI estimates **approximate**.
+
+---
+
+
+## File Organization Policy
+
+### Recommended Folder Structure (co-consult)
+
+| Folder | Purpose |
+|--------|---------|
+| `deliverables/reports/` | Final deliverables, client-ready reports |
+| `deliverables/drafts/` | Work-in-progress documents and drafts |
+| `deliverables/research/` | Research findings, analytical outputs, data analysis results |
+| `deliverables/references/` | Reference materials, source archives, citations, supporting documents |
+| `deliverables/presentations/` | Client presentation decks |
+| `deliverables/proposals/` | Pre-sales proposal drafts and rendered final proposals for prospective clients |
+| `memory/` | Session logs, meeting transcripts |
+
+> **Note**: The `deliverables/` subdirectories and their README.md files are created automatically during project scaffolding.
+
+### Output Destination Mapping
+
+Each agent must save its deliverables to the designated folder with the specified naming convention. `{topic}` is derived from the engagement subject or client brief.
+
+**Language Convention**: The deliverable language follows the active country profile (KR default: **Korean**). Korean-language files use the `_ko.md` suffix. English-language deliverables (only on explicit client request) use `.md` without suffix.
+
+| Agent | Output Type | Destination | Naming Convention (KR default: Korean) |
+|-------|-------------|-------------|-------------------|
+| Industry Expert | Industry analysis reports, trend briefings | `deliverables/reports/` | `{topic}-industry-analysis-{YYYY-MM-DD}_ko.md` |
+| Industry Expert | Regulatory overviews | `deliverables/research/` | `{topic}-regulatory-{YYYY-MM-DD}_ko.md` |
+| Industry Expert | Source archives, regulatory documents | `deliverables/references/` | `{topic}-{source-type}-ref-{YYYY-MM-DD}_ko.md` |
+| Strategy Analyst | Research findings, competitive analyses, financial models | `deliverables/research/` | `{topic}-{report-type}-{YYYY-MM-DD}_ko.md` |
+| Strategy Analyst | Source data, financial filings, analyst reports | `deliverables/references/` | `{topic}-{source-type}-ref-{YYYY-MM-DD}_ko.md` |
+| Data Analyst | Data analysis reports, model outputs | `deliverables/research/` | `{topic}-data-analysis-{YYYY-MM-DD}_ko.md` |
+| Data Analyst | Raw data sources, dataset references | `deliverables/references/` | `{topic}-{source-type}-ref-{YYYY-MM-DD}_ko.md` |
+| Subject Matter Expert | Functional analysis reports, benchmarking | `deliverables/research/` | `{topic}-{function}-analysis-{YYYY-MM-DD}_ko.md` |
+| Subject Matter Expert | Reference documents, benchmarks | `deliverables/references/` | `{topic}-{source-type}-ref-{YYYY-MM-DD}_ko.md` |
+| Change Management Partner | Culture statements, readiness assessments | `deliverables/research/` | `{topic}-change-assessment-{YYYY-MM-DD}_ko.md` |
+| Change Management Partner | Assessment references | `deliverables/references/` | `{topic}-{source-type}-ref-{YYYY-MM-DD}_ko.md` |
+| Communications Lead | Consulting reports, stakeholder comms | `deliverables/reports/` | `{deliverable-type}-{YYYY-MM-DD}_ko.md` |
+| Communications Lead | Executive presentations | `deliverables/presentations/` | `{deck-title}-{YYYY-MM-DD}_ko.md` |
+| Solutions Architect | Architecture documents, feasibility assessments | `deliverables/reports/` | `{topic}-architecture-{YYYY-MM-DD}_ko.md` |
+| Workstream Lead | Status reports, execution plans, risk logs | `deliverables/drafts/` | `{workstream}-{report-type}-{YYYY-MM-DD}_ko.md` |
+| Delivery Manager | Project status reports, stakeholder trackers | `deliverables/drafts/` | `delivery-{report-type}-{YYYY-MM-DD}_ko.md` |
+| Communications Lead | Pre-sales proposal drafts and rendered proposals | `deliverables/proposals/` | `{prospect}-proposal-{YYYY-MM-DD}_ko.md` (draft) / `.pptx` (rendered) |
+
+> **English deliverables**: When a client explicitly requests English output, use `{topic}-{report-type}-{YYYY-MM-DD}.md` (no `_ko` suffix).
+
+---
+
+## Domain Rules
+
+1. All research findings must be logged to `memory/` with source citations.
+2. Client-facing deliverables require Engagement Leader sign-off before distribution. **[CONSULT-R1]**
+3. Stakeholder review comments must be tracked in the delivery coordination log.
+4. Publication artifacts must be version-controlled before distribution.
+5. Change management assessments must include organizational readiness scores.
+6. All agent-produced deliverables MUST be saved to their designated output folder per the **Output Destination Mapping** table above. Agents MUST read this table before saving any file. Do not hard-code output paths in agent or skill definitions — this table is the single source of truth. Create the destination folder if it does not exist.
+7. **Deliverable language follows the active country profile (KR default: Korean)**. Unless the client explicitly requests another language, all deliverables MUST be written in the default language and saved with the `_ko.md` file suffix (e.g., `semiconductor-trends-2026-06-28_ko.md`). English-language deliverables use `.md` without suffix only when requested.
+8. Markdown deliverables in `deliverables/` can be converted to client-ready DOCX reports using `bun scripts/co-consult/md-to-report.ts <file.md>`. Output is saved alongside the source file (e.g., `report_ko.md` → `report_ko.docx`). Requires project dependency (`docx`) installed via `bun install`. PDF conversion is out of scope for this script — convert DOCX to PDF manually via Word or any office application.
+9. Ingested quantitative market data MUST conform to `docs/market-data-schema.json` (canonical financial model: column, unit, and currency contract) before entering the KPI pipeline — `financial-kpi.ts`, `financial-driver-tree.ts`, and the `financial-modeling` skill consume only schema-valid canonical models. **[CONSULT-R2]**
+9. Phase 1 research deliverables MUST pass cross-validation before entering `insight-synthesis`. PM dispatches validator agents per the Cross-Validation Matrix in [`engagement-orchestration.md`](engagement-orchestration.md). See Phase 1.5 Cross-Validation section for checklist and re-execution triggers.
+10. **Korean-terminology reference assets are SSOT'd at `docs/terms-ko.json`** (workspace root — not per-skill). Any skill that needs a Korean-original ↔ English glossary (business/financial/corporate-research terms not covered by the workspace English-only doc policy) MUST read/link `docs/terms-ko.json` rather than maintaining a local `references/terms-ko.json` copy. Rationale: a skill-local copy is duplicated 4× across platform mirrors (`skills/`, `.claude/skills/`, `.gemini/skills/`, `.agents/skills/`) and, when two or more skills need overlapping terms (e.g. `company-intelligence` and `financial-statement-analysis` both need financial-statement account names), those per-skill copies drift out of sync with no audit check catching it. Extending an entry: add it directly to `docs/terms-ko.json` under the relevant category (create a new category if none fits); do not add category duplicates. Currently consumed by: `company-intelligence`, `financial-statement-analysis`.
+11. **Portfolio/backtest analytics is out-of-domain for co-consult.** OpenBB-class investment-portfolio capabilities (portfolio construction, strategy backtesting, factor-exposure analysis, P&L attribution, execution analytics) are deliberately NOT part of this variant. co-consult's financial scope is research- and analysis-shaped: company intelligence, financial-statement analysis, and business financial modeling for strategic recommendations, not investment-portfolio management. Operative rule: engagement requests that need portfolio/backtest analytics MUST be scoped out at engagement intake (Phase 1) and recorded in the engagement kickoff artifacts as an external dependency or a follow-up engagement - agents MUST NOT improvise portfolio analytics with `financial-modeling`; that skill models business outcomes (revenue, cost, valuation scenarios), not security portfolios. Decision record: `docs/variant-benchmark-backlog.md` §4, gap closed 2026-08-25 via the record-out-of-domain option (scoping a `portfolio-analytics` skill was rejected: no consulting-workflow consumer, OpenBB parity would drag a data-terminal dependency chain into a strategy variant).
+
+<!-- COMMON-CONTEXT:START -->
+This project follows the workspace coding standards defined in the project's Coding Guidelines section.
+
+Key rules:
+- All operational scripts must be TypeScript (`.ts`) — run via `bun scripts/<name>.ts` (ADR-0036; no `.sh`/`.ps1` pairs)
+- Git hook scripts in `.githooks/` remain Unix shell (`.sh`) for git compatibility
+- All text files saved as **UTF-8 (without BOM)**
+- Commit messages and PR artifacts in **English only**
+<!-- COMMON-CONTEXT:END -->
+
+---
+
+*co-consult.context.md version: 2.6 — portfolio/backtest analytics recorded out-of-domain (Domain Rule 11)*
+
+## Template Provenance
+
+- **Template-Version**: 0.5.3
+- **Template-Variant**: co-consult
+
+## Template Provenance
+
+- **Template-Version**: 0.6.0
+- **Template-Variant**: co-consult
+- **Target-Jurisdiction**: region-neutral

@@ -1,0 +1,41 @@
+schema_version: "1.0"
+variant: co-consult
+output_types:
+  diagnosis_findings:
+    description: "Registered procedure output type"
+  quantitative_baseline:
+    description: "Registered procedure output type"
+  recommendation_set:
+    description: "Registered procedure output type"
+  readiness_baseline:
+    description: "Registered procedure output type"
+  solution_options:
+    description: "Registered procedure output type"
+  feasibility_notes:
+    description: "Registered procedure output type"
+  change_impact_map:
+    description: "Registered procedure output type"
+  implementation_blueprint:
+    description: "Registered procedure output type"
+  supporting_analysis:
+    description: "Registered procedure output type"
+  communication_plan:
+    description: "Registered procedure output type"
+  closeout_record:
+    description: "Registered procedure output type"
+  handover_notes:
+    description: "Registered procedure output type"
+  delivery_review_notes:
+    description: "Registered procedure output type"
+  closeout_signoff:
+    description: "Registered procedure output type"
+  client_requirements:
+    description: "Registered procedure output type"
+  proposed_architecture:
+    description: "Registered procedure output type"
+  delivery_roadmap:
+    description: "Registered procedure output type"
+  proposal_cost_estimate:
+    description: "Registered procedure output type"
+  proposal_draft:
+    description: "Registered procedure output type"
