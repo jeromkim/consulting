@@ -1,0 +1,56 @@
+{
+  "input_file": "C:\\git\\ai-workspace-standards\\consulting\\memory\\techbridge-cost-input-2026-09-08.yaml",
+  "labor_cost": {
+    "line_items": [
+      {
+        "role": "Solutions Architect",
+        "day_rate": 800000,
+        "duration_days": 40,
+        "subtotal": 32000000
+      },
+      {
+        "role": "Backend Developer A",
+        "day_rate": 500000,
+        "duration_days": 40,
+        "subtotal": 20000000
+      },
+      {
+        "role": "Backend Developer B",
+        "day_rate": 500000,
+        "duration_days": 40,
+        "subtotal": 20000000
+      },
+      {
+        "role": "QA Engineer",
+        "day_rate": 450000,
+        "duration_days": 15,
+        "subtotal": 6750000
+      },
+      {
+        "role": "Engagement Leader (PM, part-time)",
+        "day_rate": 600000,
+        "duration_days": 30,
+        "subtotal": 18000000
+      }
+    ],
+    "total": 96750000
+  },
+  "solution_cost": {
+    "line_items": [
+      {
+        "item": "LLM API usage (12-month estimate)",
+        "cost": 24000000
+      },
+      {
+        "item": "Cloud infra (VPC, API Gateway, autoscaling, 12-month)",
+        "cost": 18000000
+      },
+      {
+        "item": "Zendesk API integration - one-time setup (no additional license, uses existing customer contract)",
+        "cost": 3000000
+      }
+    ],
+    "total": 45000000
+  },
+  "grand_total": 141750000
+}

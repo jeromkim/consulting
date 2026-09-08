@@ -173,7 +173,8 @@ function main() {
       JSON.stringify(result, null, 2),
       "utf-8"
     );
-    console.log(`Cost estimate written to ${outputPath.replace(/\.(md|json)$/, "")}.md/.json`);
+    const base = outputPath.replace(/\.(md|json)$/, "");
+    console.log(`Cost estimate written to ${base}.md and ${base}.json`);
   } else {
     console.log(markdown);
     console.log("\n```json");

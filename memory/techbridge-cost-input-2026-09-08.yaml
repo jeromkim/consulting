@@ -1,0 +1,23 @@
+roles:
+  - role: "Solutions Architect"
+    day_rate: 800000
+    duration_days: 40
+  - role: "Backend Developer A"
+    day_rate: 500000
+    duration_days: 40
+  - role: "Backend Developer B"
+    day_rate: 500000
+    duration_days: 40
+  - role: "QA Engineer"
+    day_rate: 450000
+    duration_days: 15
+  - role: "Engagement Leader (PM, part-time)"
+    day_rate: 600000
+    duration_days: 30
+solution_costs:
+  - item: "LLM API usage (12-month estimate)"
+    cost: 24000000
+  - item: "Cloud infra (VPC, API Gateway, autoscaling, 12-month)"
+    cost: 18000000
+  - item: "Zendesk API integration - one-time setup (no additional license, uses existing customer contract)"
+    cost: 3000000

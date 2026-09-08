@@ -62,6 +62,33 @@
 | **Project Review** | `.claude/skills/project-review/SKILL.md` | Comprehensive parallel review of the project |
 | **Team Builder** | `skills/team-builder/SKILL.md` | Build new agent team: requirements interview, benchmarking, proposal generation, approval gate |
 | **Company Intelligence** | `skills/company-intelligence/SKILL.md` | Comprehensive company and corporate group intelligence gathering and analysis |
+| **Accessibility Audit** | `skills/accessibility-audit/SKILL.md` | WCAG 2.1 AA accessibility evaluation of UI-bearing deliverables |
+| **API Documentation** | `skills/api-documentation/SKILL.md` | Documenting REST/GraphQL interfaces or developer-facing specs |
+| **Decision Record** | `skills/decision-record/SKILL.md` | Recording gate-moment rulings and go/no-go decisions |
+| **Evidence Ledger** | `skills/evidence-ledger/SKILL.md` | Tracking evidence sources backing engagement claims |
+| **Explain Me** | `skills/explain-me/SKILL.md` | Turning a topic into a self-contained interactive HTML report |
+| **Finishing a Development Branch** | `skills/finishing-a-development-branch/SKILL.md` | Redirects branch completion to the /sync pipeline |
+| **Gateguard** | `skills/gateguard/SKILL.md` | Pre-edit investigation of importers/schemas before first file edit |
+| **Handbook** | `skills/handbook/SKILL.md` | Maintaining the project handbook |
+| **Handbook Sync Audit** | `skills/handbook-sync-audit/SKILL.md` | Auditing handbook content for drift |
+| **I18n Audit** | `skills/i18n-audit/SKILL.md` | Auditing internationalization coverage |
+| **I18n Formatting** | `skills/i18n-formatting/SKILL.md` | Locale-specific number/date/currency formatting |
+| **I18n Layout** | `skills/i18n-layout/SKILL.md` | Locale-aware layout guidance (RTL, text expansion) |
+| **I18n Locale Config** | `skills/i18n-locale-config/SKILL.md` | Locale configuration management |
+| **Meeting** | `skills/meeting/SKILL.md` | Running a single structured agent meeting |
+| **Platform Command Lifecycle Manager** | `skills/platform-command-lifecycle-manager/SKILL.md` | Managing `.claude/commands/` and `.gemini/commands/` parity |
+| **Platform Skill Lifecycle Manager** | `skills/platform-skill-lifecycle-manager/SKILL.md` | Managing `.claude/skills/` and `.gemini/skills/` parity |
+| **Script Lifecycle Manager** | `skills/script-lifecycle-manager/SKILL.md` | Managing automation script lifecycle |
+| **Security Scan** | `skills/security-scan/SKILL.md` | Static analysis, secret detection, dependency audit |
+| **Source Command Commit Push PR** | `skills/source-command-commit-push-pr/SKILL.md` | Redirects commit+push+PR requests to /sync |
+| **Standup Synthesizer** | `skills/standup-synthesizer/SKILL.md` | Daily standup digest synthesis |
+| **Sync** | `skills/sync/SKILL.md` | Full project sync pipeline (lifecycle, audit, commit, push, PR) |
+| **Token Usage Lint** | `skills/token-usage-lint/SKILL.md` | Scanning for hardcoded design values bypassing tokens |
+| **Translate** | `skills/translate/SKILL.md` | Translation helper for README/documentation files |
+| **UI/UX Design Intelligence** | `skills/ui-ux-design-intelligence/SKILL.md` | Design system creation and visual hierarchy guidance |
+| **Update Bun Packages** | `skills/update-bun-packages/SKILL.md` | Scanning and updating Bun dependencies |
+| **Validate Docs Links** | `skills/validate-docs-links/SKILL.md` | Scanning documentation for dead links |
+| **Zod Contract Gate** | `skills/zod-contract-gate/SKILL.md` | Runtime schema validation for interface boundaries |
 
 **Phase 1 — Research & Analysis**
 
@@ -70,7 +97,8 @@
 | **Competitive Intelligence** | `skills/competitive-intelligence/SKILL.md` | strategy-analyst |
 | **Financial Modeling** | `skills/financial-modeling/SKILL.md` | strategy-analyst |
 | **Insight Synthesis** | `skills/insight-synthesis/SKILL.md` | strategy-analyst |
-| **k-dart** | `skills/k-dart/SKILL.md` | strategy-analyst |
+| **Financial Statement Analysis** | `skills/financial-statement-analysis/SKILL.md` | data-analyst |
+| **MECE Logic Auditor** | `skills/mece-logic-auditor/SKILL.md` | strategy-analyst |
 | **Stakeholder Alignment** | `skills/stakeholder-alignment/SKILL.md` | change-management-partner |
 | **Org Readiness Assessment** | `skills/org-readiness-assessment/SKILL.md` | change-management-partner |
 
@@ -82,6 +110,8 @@
 | **Narrative Framework** | `skills/narrative-framework/SKILL.md` | communications-lead |
 | **Consulting Report Writing** | `skills/consulting-report-writing/SKILL.md` | communications-lead |
 | **Executive Presentation** | `skills/executive-presentation/SKILL.md` | communications-lead |
+| **Sample-Driven Report Writing** | `skills/sample-driven-report-writing/SKILL.md` | communications-lead |
+| **HWP Document Processing** | `skills/hwp-document-processing/SKILL.md` | communications-lead |
 | **Solution Design** | `skills/solution-design/SKILL.md` | solutions-architect |
 | **Technical Feasibility** | `skills/technical-feasibility/SKILL.md` | solutions-architect |
 
@@ -110,6 +140,7 @@
 <!-- VARIANT-INJECT: environment-setup [REQUIRED] -->
 - Copy `.env.sample` → `.env` and fill in all required values.
 - Required env keys (see `.env.sample`): *(fill in after project creation)*
+- The `proposal-writing` skill's `.pptx` rendering uses `pptxgenjs` (a project dependency - `bun install` pulls it in automatically). Optional: LibreOffice installed locally enables the `pptx-to-pdf.ts` PDF export step.
 <!-- END VARIANT-INJECT -->
 
 ---
@@ -245,6 +276,9 @@ Each agent must save its deliverables to the designated folder with the specifie
 | Workstream Lead | Status reports, execution plans, risk logs | `deliverables/drafts/` | `{workstream}-{report-type}-{YYYY-MM-DD}_ko.md` |
 | Delivery Manager | Project status reports, stakeholder trackers | `deliverables/drafts/` | `delivery-{report-type}-{YYYY-MM-DD}_ko.md` |
 | Communications Lead | Pre-sales proposal drafts and rendered proposals | `deliverables/proposals/` | `{prospect}-proposal-{YYYY-MM-DD}_ko.md` (draft) / `.pptx` (rendered) |
+| Strategy Analyst | Pre-sales client requirements (structured, from RFP/briefing) | `deliverables/research/` | `{prospect}-requirements-{YYYY-MM-DD}_ko.md` |
+| Solutions Architect | Pre-sales candidate architecture and delivery roadmap | `deliverables/research/` | `{prospect}-architecture-{YYYY-MM-DD}_ko.md`, `{prospect}-roadmap-{YYYY-MM-DD}_ko.md` |
+| Data Analyst | Pre-sales cost estimate (labor + solution cost) | `deliverables/research/` | `{prospect}-cost-estimate-{YYYY-MM-DD}_ko.md` |
 
 > **English deliverables**: When a client explicitly requests English output, use `{topic}-{report-type}-{YYYY-MM-DD}.md` (no `_ko` suffix).
 
